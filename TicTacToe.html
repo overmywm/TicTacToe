@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+	window.onload = function () {
+	var turns = 0;
+		var boardState = [
+		[null, null, null],
+		[null, null, null],
+		[null, null, null]];
+		var placeX, placeY, canvasX, canvasY;
+		var player = "x";
+		var dirWon = null;
+		var canvasBoard = document.getElementById("board");
+		canvasBoard.addEventListener('mousedown', function(e){
+			onDown(canvasBoard, e)
+		});
+		var ctx = canvasBoard.getContext('2d');
+		ctx.beginPath(); 
+		ctx.moveTo(250,0);
+		ctx.lineTo(250,750);
+		ctx.lineWidth = 5;
+		ctx.stroke();
+		ctx.beginPath(); 
+		ctx.moveTo(500,0);
+		ctx.lineTo(500,750);
+		ctx.lineWidth = 5;
+		ctx.stroke();
+		ctx.beginPath(); 
+		ctx.moveTo(0,250);
+		ctx.lineTo(750,250);
+		ctx.lineWidth = 5;
+		ctx.stroke();
+		ctx.beginPath(); 
+		ctx.moveTo(0,500);
+		ctx.lineTo(750,500);
+		ctx.lineWidth = 5;
+		ctx.stroke();
+		ctx.font = '275px Helvetica';
+		ctx.fillStyle = 'red';
+		function onDown(canvas, event){
+			const rect = canvas.getBoundingClientRect()
+			const x = event.clientX - rect.left
+			const y = event.clientY - rect.top
+			convertGridSpot(x,y);
+			checkFree(placeX,placeY);
+			//alert("x: " + placeX + " y: " + placeY+ "  Player:  "+player);
+			checkWin();
+			swapPlayer(player);
+			checkTie();
+		}
+		
+		function convertGridSpot(x,y){
+			if(x < 250){
+				placeX = 0;
+				canvasX = 50;
+			}else if(x <500){
+				placeX = 1;
+				canvasX = 300;
+			}else{
+				placeX = 2;
+				canvasX = 550;
+			}
+			if(y < 250){
+				placeY = 0;
+				canvasY = 200;
+			}else if(y <500){
+				placeY = 1;
+				canvasY = 450;
+			}else{
+				placeY = 2;
+				canvasY = 700;
+			}
+		}
+		function checkFree(x,y){
+			if(boardState[x][y] == null){
+				boardState[x][y] = player;
+				ctx.fillText(player, canvasX,canvasY);
+			}else{
+				alert("full  " +boardState[x][y]);
+			}
+			
+		}
+		
+		function checkWin(){
+			if(boardState[1][1] == boardState[2][2] && boardState[1][1] == boardState[0][0] && boardState[1][1] == player){
+				hasWon('diagonally');
+			}else if(boardState[1][1] == boardState[0][2] && boardState[1][1] == boardState[2][0] && boardState[1][1] == player){
+				hasWon('diagonally');
+			}
+			for(iX = 0; iX < 3; iX++){
+					if(boardState[iX][0] == boardState[iX][1] && boardState[iX][0] == boardState[iX][2] && boardState[iX][0] == player){
+						hasWon('vertically');
+					}
+			}
+			for(iY = 0; iY < 3; iY++){
+					if(boardState[0][iY] == boardState[1][iY] && boardState[0][iY] == boardState[2][iY] && boardState[0][iY] == player){
+						hasWon('horizontally');
+					}
+			}
+			turns++;
+		}
+		
+		function checkTie(){
+			if(turns == 9){
+				hasTied();
+			}
+		}
+		
+		function hasWon(direction){
+			turns = 0;
+			if (confirm('Player '+player+ ' has won '+direction+'\n Hit okay to play again')) {
+					location.reload();
+				} else {
+					hasWon(direction);//this is a bad idea
+				}
+			}
+			
+		function hasTied(){
+			if (confirm('It is a tie, hit okay to play again')) {
+					location.reload();
+				} else {
+					hasTied();//this is a bad idea
+				}
+			}
+		function swapPlayer(playerVal){
+			if(playerVal == "x"){
+				player = "o";
+				ctx.fillStyle = 'blue';
+			}else{
+				player = "x";
+				ctx.fillStyle = 'red';
+			}
+		}
+		document.getElementById("resetBtn").addEventListener("click", function(){
+		location.reload();
+	});
+	
+	}
+</script>
+<style>
+	h1 { text-align: center }
+	h3 { text-align: center }
+	canvas {
+		padding-left: 0;
+		padding-right: 0;
+		margin-left: auto;
+		margin-right: auto;
+		display: block;
+		border: 2px solid black;
+	}
+</style>
+<head>
+	<h1>Tic tac Toe</h1>
+	<h3>click to place your mark and try to get three in a row</h3>
+</head>
+<body>
+	<canvas id="board" height = '750' width = '750'>Canvas won't work here</canvas>
+</body>
+</html>
